@@ -1,0 +1,12 @@
+[Unit]
+Description=Text D&D Discord Bot
+After=multi-user.target
+
+[Service]
+User=pi
+WorkingDirectory=/home/pi/text-dnd
+ExecStart=/usr/bin/ruby /home/pi/text-dnd/main.rb
+Restart=always
+
+[Install]
+WantedBy=multi-user.target
