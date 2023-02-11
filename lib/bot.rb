@@ -1,5 +1,6 @@
 require "pry"
 require "discordrb"
+require "emoji_regex"
 require_relative "config"
 
 module TextDnD
@@ -35,7 +36,6 @@ module TextDnD
           end
         end
       end
-
       bot.button(custom_id: "roll") do |event|
         roll = rand(1..20)
 
@@ -54,6 +54,40 @@ module TextDnD
         ].join("\n")
 
         event.update_message(content: message)
+      end
+
+      bot.register_application_command(:vote, "Start a vote!", server_id: "906610348726038529") do |cmd|
+        cmd.string "message", "Ask a question to receive wisdom", required: true
+        cmd.string "option1", "Option 1", required: true
+        cmd.string "option2", "Option 2", required: true
+        cmd.string "option3", "Option 3"
+      end
+      bot.application_command(:vote) do |event|
+        content = [
+          event.options["message"],
+          event.options["option1"],
+          event.options["option2"],
+          event.options["option3"]
+        ].compact.join("\n")
+
+        options = [
+          event.options["option1"],
+          event.options["option2"],
+          event.options["option3"]
+        ]
+          .compact
+          .map do |option|
+            option.match(EmojiRegex::Regex)
+          end
+          .compact
+          .map(&:to_s)
+
+        event.respond content: "Generating message", ephemeral: true
+        message = event.send_message content: content
+
+        options.each do |option|
+          message.message.react option
+        end
       end
     end
   end
